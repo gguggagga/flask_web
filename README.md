@@ -612,3 +612,328 @@ Flask 어플리케이션을 host할 수 있는 다른 곳도 있다:
 - [Sharing your Localhost Server with Localtunnel](http://flask.pocoo.org/snippets/89/)
 
 만약 여러분이 자신만의 host를 관리하고 서비스하기를 원한다면, [배포 옵션](https://flask-docs-kr.readthedocs.io/ko/latest/ko/deploying/index.html#deployment) 챕터를 참조하라.
+
+## Flask 라이브러리를 이용한 웹 구현
+
+## flask_web
+
+
+
+![image-20210830095422154](https://user-images.githubusercontent.com/77881011/131271551-2302e247-f42f-43a7-8ea1-2cb1098711d8.png)
+
+virtualenv 설치
+
+```powershell
+pip install virtualenv
+```
+
+
+
+
+
+```powershell
+C:\apps> virtualenv flask_web
+C:\apps> cd flask_web
+C:\apps\flask_web> Scripts/activate
+
+다음과 같은 형태가 된다.
+(flask_web) C:\apps\flask_web>
+```
+
+
+
+
+
+app.py파일을 생성후 다음과 같이 코드를 생성한다.
+
+
+
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/hello')
+def hello_world():
+    return 'Hello World!'
+
+if __name__ == '__main__':
+    app.run()
+
+```
+
+
+
+
+
+flask 라이브러리 설치 
+
+```powershell
+pip install flask
+```
+
+
+
+requirements.txt  파일을 생성후 라이브러리를 관리한다.
+
+
+
+```powershell
+pip freeze > requirements.txt
+```
+
+
+
+http://localhost:5000경로로 GET 방식으로 request 할때 index.html를 파일을 랜더링 해주는 기능을 구현하기 위해여
+
+app.py에 다음과 같은 코드를 추가한다.
+
+
+
+```python
+....
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    name="KIM"
+    return render_template('index.html',data=name)
+
+....
+```
+
+
+
+
+
+templates/index.html 을 생성후  다음과 같은 코드를 추가한다.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index 페이지</title>
+</head>
+
+<body>
+    <h1>INDEX PAGE</h1>
+    <h1>Hello {{ data }}</h1>
+</body>
+
+</html>
+```
+
+
+
+
+
+jinja2 엔진이란?
+
+Jinja는 python flask 패키지에 내장된 템플릿 엔진이다. 개발자가 동적으로 변하는 웹 페이지를 쉽게 구현할 수 있도록 도와준다. 고정적으로 출력되어야 할 서식 html코드가 존재하고 동적으로 변해야할 자리는 jinja2문법으로 비워둔다. 이후 클라이언트가 웹 브라우저를 통해 엔드포인트에 접근하면 아까 비워둔 자리에 값을 설정하여 클라이언트에게 출력한다. 이처럼 고정적인 행위와 변해야할 행위를 쉽게 할 수 있다는 장점이 있다.
+
+jinja 템플릿 문법은 크게 두가지로 구분할 수 있음
+
+- `{{ ... }}` : 변수나 표현식의 결과를 출력하는 구분자(delimeter)
+- `{% ... %}` : `if`문이나 `for`문 같은 제어문을 할당하는 구분자(delimeter)
+  ( 구분자 : jinja 템플릿 문법임을 구분하는 용도 )
+
+*  {# ... #} : 주석
+
+* {%- ... %}, {%+ ... %}, {% ... -%} ... : 공백 제거 혹은 유지
+
+* {% raw %} ... {% endraw %} : 이스케이프
+
+
+
+http://localshot:5000/articles 로 GET방식으로 요청이 들어왔을때
+
+![image-20210830121444079](https://user-images.githubusercontent.com/77881011/131280072-d53e8305-c321-48c1-8fc3-086e63623400.png)
+
+위와 같은 테이블에 콘텐츠를 표현한 웹을 구현하기 위해서 
+
+Mock DATA를 임의로 만들어서 구현해 본다.
+
+
+
+data.py 
+
+```python
+def Article():
+    
+    articles = [
+        {'id':1 , 'title':'python', 'desc':'창시자는 네덜란드의 프로그래머 귀도 반 로섬(Guido van Rossum).[3] 1989년 크리스마스 주에, 연구실이 닫혀있어서 심심한 김에 만든 프로그래밍 언어이다. 농담이 아니고 반 로섬을 유럽에서는 애덤 스미스에 비교할 정도며, 네덜란드에서는 기술자의 대명사로 취급된다. 프로그래밍 계의 경제학자라나... 심심해서 만들었다는 것은 파이썬 서문과 마이크로소프트웨어와 한 인터뷰를 보면 알겠지만 사실이다. 능력 있는 기술자들은 대부분 심심할 때, 혹은 실수로 걸작을 만든다. 2000년에는 Python 2, 2008년에는 Python 3가 나왔다.','author':'Gary', 'create_at':'30_08_2021'},
+        {'id':2 , 'title':'AI', 'desc':'인공 지능1 분야에는 몇 가지 기술이 있다. 기계 학습2은 기본적인 규칙만 주어진 상태에서 입력받은 정보를 활용해 스스로 학습하는 것이다. 인공 신경망3이란, 인간의 뉴런 구조를 본떠 만든 기계 학습 모델이다. 딥 러닝4은 입력과 출력 사이에 있는 인공 뉴런들을 여러개 층층히 쌓고 연결한 인공신경망 기법을 주로 다루는 연구이다. 즉, 단일 층이 아닌 실제 뇌처럼 여러 계층으로 되어있다. 인지 컴퓨팅5은 기계학습을 이용하여 특정한 인지적 과제를 해결할 수 있는 프로그램 또는 솔루션을 이야기한다. 끝으로, 뉴로모픽 컴퓨팅6은 인공신경망을 하드웨어적으로 구현한 것이라고 생각하면 된다.','author':'Gary', 'create_at':'30_08_2021'},
+        {'id':3 , 'title':'bigdataProcessing', 'desc':'과거에는 알 수 없었던 매우 사소한 정보[1]까지도 디지털 정보로 기록되는 정보화 시대에서는 너무나도 정보의 양이 많아졌다. 거기에 더해 단순한 문자 데이터에서 벗어나 녹음, 사진, 동영상 등 데이터의 종류가 다양해지고 데이터의 용량 자체도 큰 폭으로 늘어났다. 이런 빅 데이터는 기존의 기술이나 도구로는 원활한 수집과 처리가 불가능할 정도로 성질이 달라졌으므로 빅 데이터에서 유용한 정보를 추합하거나 가치를 뽑아내기 위해서 고안된 기술이 바로 빅 데이터 프로세싱이다.','author':'James', 'create_at':'30_08_2021'}
+        
+        ]
+    return articles
+```
+
+
+
+
+
+
+
+app.py에 다음과 같은 코드를 추가한다.
+
+
+
+```python
+....
+from data import Articles
+
+....
+
+@app.route('/articles', methods=['GET', 'POST'])
+def articles():
+    list_data = Articles()
+    return render_template('articles.html', data = list_data)
+
+....
+```
+
+
+
+templates/articles.html 
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+</head>
+
+<body>
+    <h1>게시판</h1>
+    {% for i in data %}
+    <h3>{{ i['title'] }} : {{ i['desc'] }}<br></h3>
+    {% endfor %}
+</body>
+
+</html>
+```
+
+
+
+보다 시가적 측면에서 효과적인 웹페이지를 구현하기 위하여 bootstrap4 admin template 를 하용하였다 .
+
+기본 CSS, 와 JS 파일등의 STATIC 파일들을 다운로드 받은 폴더를 flask_web의 static 폴더에 이동시킨다.
+
+
+
+![image-20210830165935945](https://user-images.githubusercontent.com/77881011/131306273-9609dd68-40e9-459d-b631-9c72436adafb.png)
+
+위와같은 폴더를 복사해서 이동시킨다.
+
+templates/articles.html  를 다음과 같이 수정한다.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Custom fonts for this template -->
+    <link href="{{url_for('static', filename='vendor/fontawesome-free/css/all.min.css')}}" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{url_for('static', filename='css/sb-admin-2.min.css')}}" rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href="{{url_for('static', filename='vendor/datatables/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
+    <title>게시판</title>
+</head>
+
+<body>
+    <h1>게시판</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">LIST Page</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4">
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                                <thead>
+                                    <tr role="row">
+                                        <th class="sorting sorting_asc" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 271px;">ID</th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 403px;">TITLE</th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 199px;">AUTHOR</th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 101px;">DATE</th>
+                                        <th class="sorting" tabindex="0" aria-controls="dataTable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 189px;">EDIT</th>
+
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th rowspan="1" colspan="1">ID</th>
+                                        <th rowspan="1" colspan="1">TITLE</th>
+                                        <th rowspan="1" colspan="1">AUTHOR</th>
+                                        <th rowspan="1" colspan="1">DATE</th>
+                                        <th rowspan="1" colspan="1">EDIT</th>
+
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+
+                                    {% for i in data %}
+                                    <tr class="odd">
+                                        <td class="sorting_1">{{i['id']}}</td>
+                                        <td>{{i['title']}}</td>
+                                        <td>{{i['author']}}</td>
+                                        <td>{{i['create_at']}}</td>
+                                        <td><button class="btn btn-primary ">편집</button><button class="btn btn-danger">삭제</button></td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{{ url_for( 'static', filename='vendor/jquery/jquery.min.js')}}"></script>
+    <script src="{{ url_for( 'static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{ url_for( 'static', filename='vendor/jquery-easing/jquery.easing.min.js')}}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{{ url_for( 'static', filename='js/sb-admin-2.min.js')}}"></script>
+
+    <!-- Page level plugins -->
+    <script src="{{ url_for( 'static', filename='vendor/datatables/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ url_for( 'static', filename='vendor/datatables/dataTables.bootstrap4.min.js')}}"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="{{ url_for( 'static', filename='js/demo/datatables-demo.js')}}"></script>
+
+</body>
+
+</html>
+```
+
+
+
+
+
