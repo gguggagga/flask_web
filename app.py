@@ -19,5 +19,11 @@ def articles():
     list_data = Articles()
     return render_template('articles.html',data = list_data)
 
+@app.route('/articles2',methods=['GET','POST'])
+def articles2():
+    list_data = Articles()
+    return render_template('articles2.html',data = list_data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
