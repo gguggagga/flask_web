@@ -24,6 +24,9 @@ def articles2():
     list_data = Articles()
     return render_template('articles2.html',data = list_data)
 
+@app.route('/detail/<ids>')   # parameters 처리 > 선택에 따라 바뀌는 
+def detail(ids):
+    return
 
 if __name__ == '__main__':
     app.run(debug=True)
