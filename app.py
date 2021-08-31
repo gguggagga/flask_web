@@ -19,7 +19,13 @@ def articles():
 
 @app.route('/detail/<ids>')
 def detail(ids):
-    return ids
+    list_data = Articles()
+    for data in list_data:
+        if data['id']==int(ids):
+            article = data
+
+    # return article 이것과 아래 render_template 의 차이로 템플릿, html의 유무를 설명    
+    return render_template('article.html',article=article)
 
 if __name__ == '__main__':
     app.run( debug=True )

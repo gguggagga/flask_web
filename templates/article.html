@@ -1,0 +1,10 @@
+{% extends 'layout.html' %} {% block body %}
+<!-- css 스타일로 바꿔주면 세세하게 바꿀 수 있다 -->
+<div class="jumbotron">
+    <h1 class="display-4">{{article['title']}}</h1>
+    <p class="lead">{{article['desc']}}</p>
+    <hr class="my-4">
+    <p>AUTHOR : {{article['author']}}</p>
+    <a class="btn btn-primary" href="/articles" role="button">BACK</a>
+</div>
+{% endblock %}
