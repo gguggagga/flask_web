@@ -4,5 +4,8 @@ Flask==2.0.1
 itsdangerous==2.0.1
 Jinja2==3.0.1
 MarkupSafe==2.0.1
+<<<<<<< HEAD
 PyMySQL==1.0.2
+=======
+>>>>>>> 402e4cad16edf9deadbdb830e6e37600b2d75480
 Werkzeug==2.0.1

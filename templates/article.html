@@ -1,3 +1,4 @@
+<<<<<<< HEAD
  {% extends "layout.html" %} {% block body%}
 
 <div class="jumbotron">
@@ -6,5 +7,15 @@
     <hr class="my-4">
     <p> AUTHOR : {{article[3] }} </p>
     <a class="btn btn-primary " href="/articles" role="button">BACK</a>
+=======
+{% extends 'layout.html' %} {% block body %}
+<!-- css 스타일로 바꿔주면 세세하게 바꿀 수 있다 -->
+<div class="jumbotron">
+    <h1 class="display-4">{{article[1]}}</h1>
+    <p class="lead">{{article[2]}}</p>
+    <hr class="my-4">
+    <p>AUTHOR : {{article[3]}}</p>
+    <a class="btn btn-primary" href="/articles" role="button">BACK</a>
+>>>>>>> 402e4cad16edf9deadbdb830e6e37600b2d75480
 </div>
 {% endblock %}
