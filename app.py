@@ -1,6 +1,8 @@
 from typing import Counter
 from flask import Flask , render_template , redirect, request
+from pymysql import NULL, cursors
 from data import Articles
+from passlib.hash import pbkdf2_sha256
 import pymysql
 
 db_connection = pymysql.connect(
@@ -29,14 +31,20 @@ def regitster():
     else:
         username = request.form["username"]
         email = request.form["email"]
-        password= request.form['password']
-        cosur = db_connection.cursor()
-        sql = f"INSERT INTO users (username, email, password) VALUES ('{username}', '{email}', '{password}');"
-        cosur.execute(sql)
-        db_connection.commit()
-        # return render_template('re_success.html')
-        return redirect('/')
-        
+        password= pbkdf2_sha256.hash(request.form['password'])
+        cursor = db_connection.cursor()
+        sql_1 = f"select * from users where email='{email}'"
+        cursor.execute(sql_1)
+        user = cursor.fetchone()
+        #print(user) email이 db안에 존재하는지 확인
+        if user == None:
+            sql = f"INSERT INTO users (username, email, password) VALUES ('{username}', '{email}', '{password}');"
+            cursor.execute(sql)
+            db_connection.commit()
+            # return render_template('re_success.html')
+            return redirect('/')
+        else : 
+            return redirect('/register')
 
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
