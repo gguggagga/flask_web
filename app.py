@@ -7,7 +7,14 @@ from pymysql import NULL, cursors
 from passlib.hash import pbkdf2_sha256
 import pymysql
 from functools import wraps
+from pymongo import MongoClient
 
+client = MongoClient("mongodb+srv://root:1234@cluster0.4dhoo.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client.gnagnam
+db_user = client.users
+
+list = db.list
+users = db_user.users
 
 app = Flask(__name__)
 app.config['SECRET_KEY']= 'gangnam'
@@ -48,6 +55,8 @@ def index():
     name="KIM"
     return render_template('index.html',data=name, user=session)
 
+
+# 빈데이터를 넣지 않으려면 폼체크 구성하기
 @app.route('/register', methods=['GET', 'POST'])
 def regitster():
     if request.method =='GET':        
@@ -56,6 +65,8 @@ def regitster():
         username = request.form["username"]
         email = request.form["email"]
         password= pbkdf2_sha256.hash(request.form['password'])
+
+        users.insert_one({"username":username,"email":email,"password":password})
         cursor = db_connection.cursor()
         sql_1 = f"select * from users where email='{email}'"
         cursor.execute(sql_1)
@@ -137,6 +148,7 @@ def add_article():
         title = request.form["title"]
         desc = request.form["desc"]
         author = request.form["author"]
+        list.insert_one({"title":title,"desc":desc,"author":author},tls =True,tlsAllowInvalidCertificates=True)
         cursor = db_connection.cursor()
         sql = f"INSERT INTO list (title, description, author) VALUES ('{title}', '{desc}', '{author}');"
         cursor.execute(sql)
