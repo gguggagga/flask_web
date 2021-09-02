@@ -1,10 +1,16 @@
+import re
 from typing import Counter
-from flask import Flask , render_template , redirect, request
+from flask import Flask , render_template , redirect, request, session
+from flask.typing import ResponseValue
 from pymysql import NULL, cursors
-from data import Articles
+# from data import Articles
 from passlib.hash import pbkdf2_sha256
 import pymysql
 
+
+app = Flask(__name__)
+app.config['SECRET_KEY']= 'gangnam'
+# print(len(session))
 db_connection = pymysql.connect(
 	    user    = 'root',
         passwd  = '1234',
@@ -12,9 +18,6 @@ db_connection = pymysql.connect(
     	db      = 'gangnam',
     	charset = 'utf8'
 )
-
-app = Flask(__name__)
-
 # @app.route('/hello')
 # def hello_world():
 #     return 'Hello World!'
@@ -22,7 +25,7 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     name="KIM"
-    return render_template('index.html',data=name)
+    return render_template('index.html',data=name, user=session)
 
 @app.route('/register', methods=['GET', 'POST'])
 def regitster():
@@ -46,6 +49,40 @@ def regitster():
         else : 
             return redirect('/register')
 
+@app.route('/login', methods =['GET','POST'])
+def login():
+    if request.method == "GET":
+        return render_template('login.html')
+    else:
+        email = request.form["email"]
+        password = request.form["password"]
+        sql1 = f"select * from users where email = '{email}'"
+        cursor = db_connection.cursor()
+        cursor.execute(sql1)
+        user = cursor.fetchone()
+        print(user)
+        if user == None:
+            print(user)
+            return redirect('/login')
+        else:
+            result=pbkdf2_sha256.verify(password,user[3])
+            if result == True :
+                session['id']=user[0]
+                session['username']=user[1]
+                session['email']=user[2]
+                session['date']=user[4]
+                print(session)
+                return redirect('/')
+            else : 
+                return redirect('/login')
+
+@app.route('/logout', methods=['GET','POST'])
+def logout():
+    session.clear()
+    return redirect('/')
+
+
+
 @app.route('/articles', methods=['GET', 'POST'])
 def articles():
     # list_data = Articles()
@@ -54,7 +91,7 @@ def articles():
     cursor.execute(sql)
     topics = cursor.fetchall()
     print(topics)
-    return render_template('articles.html', data = topics)
+    return render_template('articles.html', data = topics, user=session)
 
 @app.route('/detail/<ids>')
 def detail(ids):
@@ -67,13 +104,12 @@ def detail(ids):
     # for data in list_data:
     #     if data['id']==int(ids):
     #         article = data
-
-    return render_template('article.html',article=topic)
+    return render_template('article.html',article=topic, user=session)
 
 @app.route('/add_article', methods=['GET', 'POST'])
 def add_article():
     if request.method == "GET":
-        return render_template('/add_article.html')
+        return render_template('/add_article.html',user=session)
     else:
         title = request.form["title"]
         desc = request.form["desc"]
@@ -92,7 +128,7 @@ def edit_article(ids):
         cursor.execute(sql)
         topic = cursor.fetchone()
 
-        return render_template('/edit_article.html',article=topic)
+        return render_template('/edit_article.html',article=topic,user=session)
     else:
         title = request.form["title"]
         desc = request.form["desc"]
